@@ -1,0 +1,26 @@
+server:
+  port: ${PORT}
+
+spring:
+  application:
+    name: proxy
+  cloud:
+    gateway:
+      routes:
+        - id: weighted-route
+          uri: no://op
+          predicates:
+            - Path=/api/**
+          filters:
+            - WeightedRouting
+
+proxy:
+  monolith-url: ${MONOLITH_URL}
+  movies-url: ${MOVIES_SERVICE_URL}
+  events-url: ${EVENTS_SERVICE_URL}
+  gradual-migration-enabled: ${GRADUAL_MIGRATION}
+  movies-migration-percent: ${MOVIES_MIGRATION_PERCENT}
+
+logging:
+  level:
+    root: WARN

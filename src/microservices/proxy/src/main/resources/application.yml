@@ -1,18 +1,12 @@
 server:
-  port: 8000
+  port: ${PORT}
 
 spring:
   application:
     name: proxy
   cloud:
     gateway:
-      routes:
-        - id: weighted-route
-          uri: no://op
-          predicates:
-            - Path=/api/**
-          filters:
-            - WeightedRouting
+      routes: []
 
 proxy:
   monolith-url: ${MONOLITH_URL}

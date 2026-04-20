@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
 plugins {
     kotlin("jvm") version "2.1.0"
     kotlin("plugin.spring") version "2.1.0"
-    id("org.springframework.boot") version "3.2.5"
+    id("org.springframework.boot") version "3.1.5"
     id("io.spring.dependency-management") version "1.1.3"
 }
 
@@ -19,21 +19,14 @@ repositories {
     mavenCentral()
 }
 
-extra["springCloudVersion"] = "2023.0.1"
-
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.cloud:spring-cloud-starter-gateway")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
-}
-
-dependencyManagement {
-    imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-    }
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.kafka:spring-kafka")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    implementation("com.fasterxml.uuid:java-uuid-generator:5.1.0")
 }
 
 tasks.compileKotlin {

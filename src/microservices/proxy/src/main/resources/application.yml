@@ -1,5 +1,5 @@
 server:
-  port: ${PORT}
+  port: 8000
 
 spring:
   application:
@@ -18,9 +18,9 @@ proxy:
   monolith-url: ${MONOLITH_URL}
   movies-url: ${MOVIES_SERVICE_URL}
   events-url: ${EVENTS_SERVICE_URL}
-  gradual-migration-enabled: ${GRADUAL_MIGRATION}
+  gradual-migration: ${GRADUAL_MIGRATION}
   movies-migration-percent: ${MOVIES_MIGRATION_PERCENT}
 
 logging:
   level:
-    root: WARN
+    root: DEBUG

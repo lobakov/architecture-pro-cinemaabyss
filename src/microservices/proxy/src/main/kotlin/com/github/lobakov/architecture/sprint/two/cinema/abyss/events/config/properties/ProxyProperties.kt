@@ -1,4 +1,4 @@
-package com.github.lobakov.architecture.sprint.two.cinema.abyss.proxy.config.properties
+package com.github.lobakov.architecture.sprint.two.cinema.abyss.events.config.properties
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.cloud.context.config.annotation.RefreshScope

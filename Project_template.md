@@ -160,6 +160,8 @@ jobs:
 
   zookeeper-0                       1/1     Running 
 
+![img_3.png](screenshots/img_3.png)
+
   8. Добавим ingress
 
   - добавьте аддон
@@ -186,6 +188,8 @@ jobs:
   ```
   Часть тестов с health-чек упадет, но создание событий отработает.
   Откройте логи event-service и сделайте скриншот обработки событий
+
+![img_4.png](screenshots/img_4.png)
 
 #### Шаг 3
 Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.

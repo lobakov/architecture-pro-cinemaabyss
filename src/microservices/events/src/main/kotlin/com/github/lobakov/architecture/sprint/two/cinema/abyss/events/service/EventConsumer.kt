@@ -1,5 +1,6 @@
 package com.github.lobakov.architecture.sprint.two.cinema.abyss.events.service
 
+import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event
 import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.MovieEvent
 import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.PaymentEvent
 import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.UserEvent
@@ -11,18 +12,18 @@ import org.springframework.stereotype.Service
 class EventConsumer {
 
     @KafkaListener(topics = ["user-events"], groupId = "event-group")
-    fun consumeUserEvent(event: UserEvent) {
-        logger.info("Received User Event: $event")
+    fun consumeUserEvent(event: Event) {
+        logger.info("Received User Event: ${event.payload as UserEvent}")
     }
 
     @KafkaListener(topics = ["payment-events"], groupId = "event-group")
-    fun consumePaymentEvent(event: PaymentEvent) {
-        logger.info("Received Payment Event: $event")
+    fun consumePaymentEvent(event: Event) {
+        logger.info("Received Payment Event: ${event.payload as PaymentEvent}")
     }
 
     @KafkaListener(topics = ["movie-events"], groupId = "event-group")
-    fun consumeMovieEvent(event: MovieEvent) {
-        logger.info("Received Movie Event: $event")
+    fun consumeMovieEvent(event: Event) {
+        logger.info("Received Movie Event: ${event.payload as MovieEvent}")
     }
 
     companion object {

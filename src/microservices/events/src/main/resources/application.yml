@@ -16,9 +16,9 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: |
-          user:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.UserEvent,
-          payment:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.PaymentEvent,
-          movie:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.MovieEvent
+          user:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event,
+          payment:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event,
+          movie:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event
 
 logging:
   level:

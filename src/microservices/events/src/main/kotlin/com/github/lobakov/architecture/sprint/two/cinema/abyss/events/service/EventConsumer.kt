@@ -1,36 +1,37 @@
 package com.github.lobakov.architecture.sprint.two.cinema.abyss.events.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event
-import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.MovieEvent
-import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.PaymentEvent
-import com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.UserEvent
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Service
-import kotlin.jvm.java
 
 @Service
-class EventConsumer(
-    private val objectMapper: ObjectMapper
-) {
+class EventConsumer {
 
     @KafkaListener(topics = ["user-events"], groupId = "event-group")
     fun consumeUserEvent(event: Event) {
-        val userEvent = objectMapper.convertValue(event.payload, UserEvent::class.java)
-        logger.info("Received User Event: $userEvent")
+        logger.info("=== Received raw event on user-events topic ===")
+        log(event)
     }
 
     @KafkaListener(topics = ["payment-events"], groupId = "event-group")
     fun consumePaymentEvent(event: Event) {
-        val paymentEvent = objectMapper.convertValue(event.payload, PaymentEvent::class.java)
-        logger.info("Received Payment Event: $paymentEvent")
+        logger.info("=== Received raw event on payment-events topic ===")
+        log(event)
     }
 
     @KafkaListener(topics = ["movie-events"], groupId = "event-group")
     fun consumeMovieEvent(event: Event) {
-        val movieEvent = objectMapper.convertValue(event.payload, MovieEvent::class.java)
-        logger.info("Received Movie Event: $movieEvent")
+        logger.info("=== Received raw event on movie-events topic ===")
+        log(event)
+    }
+
+    private fun log(event: Event) {
+        logger.info("Event ID: ${event.id}")
+        logger.info("Event Type: ${event.type}")
+        logger.info("Event Timestamp: ${event.timestamp}")
+        logger.info("Payload class: ${event.payload::class.java.name}")
+        logger.info("Payload content: ${event.payload}")
     }
 
     companion object {

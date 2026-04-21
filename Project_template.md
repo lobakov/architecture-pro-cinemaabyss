@@ -28,172 +28,27 @@
 
 ## Задание 3
 
-Команда начала переезд в Kubernetes для лучшего масштабирования и повышения надежности. 
-Вам, как архитектору осталось самое сложное:
- - реализовать CI/CD для сборки прокси сервиса
- - реализовать необходимые конфигурационные файлы для переключения трафика.
-
-
-### CI/CD
-
- В папке .github/worflows доработайте деплой новых сервисов proxy и events в docker-build-push.yml , чтобы api-tests при сборке отрабатывали корректно при отправке коммита в вашу новую ветку.
-
-Нужно доработать 
-```yaml
-on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'src/**'
-      - '.github/workflows/docker-build-push.yml'
-  release:
-    types: [published]
-```
-и добавить необходимые шаги в блок
-```yaml
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-```
-Как только сборка отработает и в github registry появятся ваши образы, можно переходить к блоку настройки Kubernetes
-Успешным результатом данного шага является "зеленая" сборка и "зеленые" тесты
-
-
-### Proxy в Kubernetes
+Реализовал CI/CD (см .github/workflows)
 
 #### Шаг 2
 
-  Доработайте src/kubernetes/event-service.yaml и src/kubernetes/proxy-service.yaml
-
-  - Необходимо создать Deployment и Service 
-  - Доработайте ingress.yaml, чтобы можно было с помощью тестов проверить создание событий
-  - Выполните дальшейшие шаги для поднятия кластера:
-
-  1. Создайте namespace:
-  ```bash
-  kubectl apply -f src/kubernetes/namespace.yaml
-  ```
-  2. Создайте секреты и переменные
-  ```bash
-  kubectl apply -f src/kubernetes/configmap.yaml
-  kubectl apply -f src/kubernetes/secret.yaml
-  kubectl apply -f src/kubernetes/dockerconfigsecret.yaml
-  kubectl apply -f src/kubernetes/postgres-init-configmap.yaml
-  ```
-
-  3. Разверните базу данных:
-  ```bash
-  kubectl apply -f src/kubernetes/postgres.yaml
-  ```
-
-  На этом этапе если вызвать команду
-  ```bash
-  kubectl -n cinemaabyss get pod
-  ```
-  Вы увидите
-
-  NAME         READY   STATUS    
-  postgres-0   1/1     Running   
-
-  4. Разверните Kafka:
-  ```bash
-  kubectl apply -f src/kubernetes/kafka/kafka.yaml
-  ```
-
-  Проверьте, теперь должно быть запущено 3 пода, если что-то не так, то посмотрите логи
-  ```bash
-  kubectl -n cinemaabyss logs имя_пода (например - kafka-0)
-  ```
-
-  5. Разверните монолит:
-  ```bash
-  kubectl apply -f src/kubernetes/monolith.yaml
-  ```
-  6. Разверните микросервисы:
-  ```bash
-  kubectl apply -f src/kubernetes/movies-service.yaml
-  kubectl apply -f src/kubernetes/events-service.yaml
-  ```
-  7. Разверните прокси-сервис:
-  ```bash
-  kubectl apply -f src/kubernetes/proxy-service.yaml
-  ```
-
-  После запуска и поднятия подов вывод команды 
-  ```bash
-  kubectl -n cinemaabyss get pod
-  ```
-
-  Будет наподобие такого
-
-  NAME                              READY   STATUS    
-
-  events-service-7587c6dfd5-6whzx   1/1     Running  
-
-  kafka-0                           1/1     Running   
-
-  monolith-8476598495-wmtmw         1/1     Running  
-
-  movies-service-6d5697c584-4qfqs   1/1     Running  
-
-  postgres-0                        1/1     Running  
-
-  proxy-service-577d6c549b-6qfcv    1/1     Running  
-
-  zookeeper-0                       1/1     Running 
+Вывод списка подов:
 
 ![img_3.png](screenshots/img_3.png)
 
-  8. Добавим ingress
-
-  - добавьте аддон
-  ```bash
-  minikube addons enable ingress
-  ```
-  ```bash
-  kubectl apply -f src/kubernetes/ingress.yaml
-  ```
-  9. Добавьте в /etc/hosts
-  127.0.0.1 cinemaabyss.example.com
-
-  10. Вызовите
-  ```bash
-  minikube tunnel
-  ```
-  11. Вызовите https://cinemaabyss.example.com/api/movies
-  Вы должны увидеть вывод списка фильмов
-  Можно поэкспериментировать со значением   MOVIES_MIGRATION_PERCENT в src/kubernetes/configmap.yaml и убедится, что вызовы movies уходят полностью в новый сервис
-
-  12. Запустите тесты из папки tests/postman
-  ```bash
-   npm run test:kubernetes
-  ```
-  Часть тестов с health-чек упадет, но создание событий отработает.
-  Откройте логи event-service и сделайте скриншот обработки событий
-
+Вывод тестов:
+  
 ![img_4.png](screenshots/img_4.png)
 
 #### Шаг 3
-Добавьте сюда скриншота вывода при вызове https://cinemaabyss.example.com/api/movies и  скриншот вывода event-service после вызова тестов.
 
+Вывод events:
+
+![img_5.png](screenshots/img_5.png)
+
+Вывод https://cinemaabyss.example.com/api/movies
+
+![img_6.png](screenshots/img_6.png)
 
 ## Задание 4
 Для простоты дальнейшего обновления и развертывания вам как архитектуру необходимо так же реализовать helm-чарты для прокси-сервиса и проверить работу 

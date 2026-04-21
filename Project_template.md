@@ -79,56 +79,6 @@ jobs:
 
 ### Proxy в Kubernetes
 
-#### Шаг 1
-Для деплоя в kubernetes необходимо залогиниться в docker registry Github'а.
-1. Создайте Personal Access Token (PAT) https://github.com/settings/tokens . Создавайте class с правом read:packages
-2. В src/kubernetes/*.yaml (event-service, monolith, movies-service и proxy-service)  отредактируйте путь до ваших образов 
-```bash
- spec:
-      containers:
-      - name: events-service
-        image: ghcr.io/ваш логин/имя репозитория/events-service:latest
-```
-3. Добавьте в секрет src/kubernetes/dockerconfigsecret.yaml в поле
-```bash
- .dockerconfigjson: значение в base64 файла ~/.docker/config.json
-```
-
-4. Если в ~/.docker/config.json нет значения для аутентификации
-```json
-{
-        "auths": {
-                "ghcr.io": {
-                       тут пусто
-                }
-        }
-}
-```
-то выполните 
-
-и добавьте
-
-```json 
- "auth": "имя пользователя:токен в base64"
-```
-
-Чтобы получить значение в base64 можно выполнить команду
-```bash
- echo -n ваш_логин:ваш_токен | base64
-```
-
-После заполнения config.json, также прогоните содержимое через base64
-
-```bash
-cat .docker/config.json | base64
-```
-
-и полученное значение добавляем в
-
-```bash
- .dockerconfigjson: значение в base64 файла ~/.docker/config.json
-```
-
 #### Шаг 2
 
   Доработайте src/kubernetes/event-service.yaml и src/kubernetes/proxy-service.yaml

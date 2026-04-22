@@ -32,7 +32,7 @@ spec:
             - name: MONOLITH_URL
               value: "http://monolith:8080"
             - name: MOVIES_SERVICE_URL
-              value: "http://movies-service:8000"
+              value: "http://movies-service:8081"
             - name: EVENTS_SERVICE_URL
               value: "http://events-service:8082"
             - name: GRADUAL_MIGRATION

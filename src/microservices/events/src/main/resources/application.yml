@@ -1,0 +1,28 @@
+server:
+  port: ${PORT}
+
+spring:
+  application:
+    name: events
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: event-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: |
+          user:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event,
+          payment:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event,
+          movie:com.github.lobakov.architecture.sprint.two.cinema.abyss.events.model.Event
+
+logging:
+  level:
+    root: INFO
+    org.apache.kafka: INFO
+    org.springframework.kafka: INFO
+    org.springframework.kafka.listener: INFO

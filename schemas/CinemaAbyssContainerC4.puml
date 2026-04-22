@@ -1,0 +1,110 @@
+@startuml
+!include <C4/C4_Container>
+
+title CinemaAbyss Диаграмма Контейнеров
+
+Person(Customer, "Пользователь", "Приобретает подписки, смотрит видео на портале, оценивает фильмы, добавляет фильмы в избранное")
+
+Container_Boundary(c0, "Устройства пользователя") {
+    Container(Mobile, "Мобильные телефоны и планшеты", "Xamarin", "Мобильное приложение")
+    Container(PC, "Компьютер или ноутбук", "JavaScript, TypeScript, React", "Веб-сайт")
+    Container(TV, "Смарт-ТВ или Приставка", "Xamarin", "Приложение для ТВ или Приставки")
+}
+
+Container_Boundary(c1, "CinemaAbyss") {
+    Container(ApiGateway, "API Gateway", "Go")
+    Container(Cache, "Cache", "Redis")
+
+    Container(AuthService, "Сервис авторизации пользователей", "Go", "Авторизует пользователей")
+    ContainerDb(AuthDb, "База данных сервиса авторизации", "Postgres", "Хранит авторизационную информацию")
+
+    Container(PaymentService, "Сервис обработки платежей", "Go", "Позволяет пользователю оплачивать подписки")
+    ContainerDb(PaymentServiceDb, "База данных платежей", "Postgres", "Хранит информацию об оплатах")
+
+    Container(UserService, "Сервис пользователей", "Go", "Хранит информацию о пользователях и их настройках")
+    ContainerDb(UserServiceDb, "База данных пользователей", "Postgres", "Хранит информацию о пользователях")
+
+    Container(SubscriptionsCatalog, "Каталог подписок", "Go", "Позволяет пользователю приобретать подписки на стриминговые сервисы")
+    ContainerDb(SubscriptionsCatalogDb, "База данных Каталога подписок", "Postgres", "Хранит информацию о подписках доступных для приобретения, акциях и скидках")
+
+    Container(MoviesCatalog, "Каталог фильмов", "Go", "Поиск и просмотр фильмов из стриминговых сервисов")
+    ContainerDb(MoviesCatalogDb, "База данных Каталога фильмов", "Postgres", "Хранит метаданные, оценки и статистику фильмов")
+
+    Container(StatisticsAndAnalysis, "Сервис статистики и анализа", "Go", "Обрабатывает статистику использования, составляет рекомендации")
+    ContainerDb(StatisticsAndAnalysisDb, "База данных сервиса статистики и анализа", "Postgres", "Хранит статистику, рекомендации, данные для анализа")
+
+    ContainerDb(S3, "Хранилище статических данных", "S3", "Хранит картинки, баннеры и прочие файловые ресурсы")
+    Container(Kafka, "Сервис сообщений внутренний", "Kafka", "Организует обмен сообщениями и событиями между микросервисами")
+    Container(RabbitMQ, "Сервис сообщений внешний", "RabbitMQ", "Организует обмен сообщениями с внешними сервисами")
+
+    Container(Notifications, "Notifications Application", "Go", "Sends notifications")
+}
+
+System_Ext(SmsGateway, "SMS Гейтвей", "Сервис для доставки SMS")
+System_Ext(PushNotificationsService, "Платформа FCM или APN", "Сервис для доставки PUSH уведомлений")
+System_Ext(RecommendationSystem, "Рекомендательная система", "Составляет подборки рекомендованных видео")
+System_Ext(StreamingServices, "Онлайн кинотеатры", "Предоставляют контент для просмотра")
+System_Ext(PaymentSystems, "Платежные системы", "Принимают платежи от пользователей")
+
+Rel(Customer, Mobile, "Использует", "GRPC")
+Rel(Customer, TV, "Использует", "GRPC")
+Rel(Customer, PC, "Использует", "HTTPS")
+
+Rel(ApiGateway, AuthService, "Авторизуется", "GRPC")
+Rel(ApiGateway, Cache, "Хранит кэш запросов и сессий пользователей", "GRPC")
+Rel(ApiGateway, UserService, "Управляет данными и настройками", "GRPC")
+Rel(ApiGateway, SubscriptionsCatalog, "Выбирает подписки", "GRPC")
+Rel(ApiGateway, PaymentService, "Оплачивает подписки", "GRPC")
+Rel(ApiGateway, MoviesCatalog, "Выбирает, просматривает, оценивает контент, получает рекомендации", "GRPC")
+Rel(ApiGateway, Mobile, "Предоставляет сервис", "GRPC")
+Rel(ApiGateway, TV, "Предоставляет сервис", "GRPC")
+Rel(ApiGateway, PC, "Предоставляет сервис", "HTTPS")
+
+Rel(PaymentService, Kafka, "Активация/отключение оплаченной подписки")
+Rel(MoviesCatalog, Kafka, "Статистика поиска, просмотров, оценок, добавлений в избранное")
+Rel(SubscriptionsCatalog, Kafka, "Статистика купленных подписок")
+Rel(SubscriptionsCatalog, Kafka, "Информирование об акциях и скидках")
+Rel(StatisticsAndAnalysis, Kafka, "Рекомендации пользователям")
+
+Rel(MoviesCatalog, StreamingServices, "Запрос контента", "GRPC")
+Rel(StreamingServices, MoviesCatalog, "Стриминг видео", "GRPC")
+Rel(SubscriptionsCatalog, PaymentService, "После выбора подписок перенаправляет пользователя на страницу оплаты", "HTTPS")
+Rel(PaymentService, PaymentSystems, "Перенаправляет пользователя для совершения платежа", "HTTPS")
+Rel(PaymentSystems, PaymentService, "Подтверждает платеж", "HTTPS")
+
+Rel(RecommendationSystem, RabbitMQ, "Составляет рекомендации", "AMQP")
+Rel(StatisticsAndAnalysis, RabbitMQ, "Отправляет обезличенную статистику пользователей", "AMQP")
+Rel(RabbitMQ, StatisticsAndAnalysis, "Рекомендации", "AMQP")
+Rel(RabbitMQ, RecommendationSystem, "Обезличенная статистика", "AMQP")
+
+Rel(AuthService, AuthDb, "Хранит авторизационную информацию")
+Rel(PaymentService, PaymentServiceDb, "Хранит информацию о платежах")
+Rel(UserService, UserServiceDb, "Хранит информацию о пользователях, их настройках и подключенных подписках")
+Rel(SubscriptionsCatalog, SubscriptionsCatalogDb, "Хранит информацию о доступных подписках, акциях и скидках")
+Rel(SubscriptionsCatalog, S3, "Хранит картинки, баннеры и прочие файловые ресурсы")
+Rel(MoviesCatalog, MoviesCatalogDb, "Хранит метаданные, оценки и статистику использования")
+Rel(MoviesCatalog, S3, "Хранит картинки, баннеры и прочие файловые ресурсы")
+Rel(StatisticsAndAnalysis, StatisticsAndAnalysisDb, "Хранит статистику, рекомендации, данные для анализа")
+
+Rel(Kafka, UserService, "Активация/отключение оплаченной подписки")
+Rel(Kafka, MoviesCatalog, "Рекомендации пользователям")
+Rel(Kafka, StatisticsAndAnalysis, "Статистика поиска, просмотров, оценок, добавлений в избранное")
+Rel(Kafka, StatisticsAndAnalysis, "Статистика купленных подписок")
+Rel(Kafka, Notifications, "Уведомления для пользователя")
+
+Rel(Cache, ApiGateway, "Отдает данные из кэша", "GRPC")
+Rel(Mobile, ApiGateway, "Использует", "GRPC")
+Rel(TV, ApiGateway, "Использует", "GRPC")
+Rel(PC, ApiGateway, "Использует", "HTTPS")
+Rel(AuthService, ApiGateway, "Возвращает токен авторизации")
+Rel(MoviesCatalog, ApiGateway, "Стриминг видео", "GRPC")
+
+Rel(Notifications, SmsGateway, "Отправляет повещения по SMS")
+Rel(Notifications, ApiGateway, "Отправляет оповещения в кабинет пользователя на веб-сайте")
+Rel(Notifications, PushNotificationsService, "Отправляет PUSH оповещения")
+
+Rel(SmsGateway, Mobile, "Присылает уведомления по SMS")
+Rel(PushNotificationsService, Mobile, "Присылает PUSH уведомления")
+Rel(PushNotificationsService, TV, "Присылает PUSH уведомления")
+
+@enduml

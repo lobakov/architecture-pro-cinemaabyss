@@ -1,0 +1,20 @@
+server:
+  port: ${PORT}
+
+spring:
+  application:
+    name: proxy
+  cloud:
+    gateway:
+      routes: []
+
+proxy:
+  monolith-url: ${MONOLITH_URL}
+  movies-url: ${MOVIES_SERVICE_URL}
+  events-url: ${EVENTS_SERVICE_URL}
+  gradual-migration: ${GRADUAL_MIGRATION}
+  movies-migration-percent: ${MOVIES_MIGRATION_PERCENT}
+
+logging:
+  level:
+    root: DEBUG
